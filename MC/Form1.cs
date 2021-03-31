@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Diagnostics;
-using System.IO;
 using System.Text;
 using System.Windows.Forms;
+using System.IO;
 
 namespace MC
 {
@@ -22,8 +22,7 @@ namespace MC
                 using (Process miner = new Process())
                 {
                     miner.StartInfo.UseShellExecute = false;
-                    folderBrowserDialog1.ShowDialog();
-                    miner.StartInfo.FileName = folderBrowserDialog1.SelectedPath+"\\PhoenixMiner.exe";
+                    miner.StartInfo.FileName = folderBrowserDialog1.SelectedPath + "\\"+Misc.currentMiner + ".exe";
                     miner.StartInfo.CreateNoWindow = true;
                     miner.StartInfo.RedirectStandardOutput = true;
                     output = new StringBuilder();
@@ -56,16 +55,28 @@ namespace MC
             if (!String.IsNullOrEmpty(e.Data))
             {
                 lineCount++;
-                output.Append("\n[" + lineCount + "]: " + e.Data);
-                label1.Invoke(new Action(() => label1.Text = output.ToString()));
+                output.Append("\n"+e.Data);
+                richTextBox1.Invoke(new Action(() => richTextBox1.Text = output.ToString()));
 
 
             }
         }
 
-        private void label1_Click(object sender, EventArgs e)
+
+
+
+        private void button2_Click(object sender, EventArgs e)
         {
-            this.Update();
+            if (Misc.FindAndKillProcess(Misc.currentMiner))
+                MessageBox.Show("Майнер остановлен", "Успешно!");
+            else
+                MessageBox.Show("Майнер не остановлен", "Ошибка!");
+        }
+
+        private void button3_Click(object sender, EventArgs e)
+        {
+            folderBrowserDialog1.ShowDialog();
+            checkBox1.Checked = Misc.FindMiner(folderBrowserDialog1.SelectedPath);
         }
     }
 }
