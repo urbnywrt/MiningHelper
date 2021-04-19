@@ -9,7 +9,7 @@ namespace MC
     public partial class Form1 : Form
     {
         private static int lineCount = 0;
-        private static StringBuilder output = null;
+        public static StringBuilder output = null;
         public Form1()
         {
             InitializeComponent();
@@ -26,7 +26,10 @@ namespace MC
                     miner.StartInfo.CreateNoWindow = true;
                     miner.StartInfo.RedirectStandardOutput = true;
                     output = new StringBuilder();
-                    miner.StartInfo.Arguments = "-pool ssl://eu1.ethermine.org:5555 -pool2 ssl://us1.ethermine.org:5555 -wal 0xde8b076f78ffb6d4a787103c3a70550535b13c06.urbnywrt";
+                    if (textBox1.Text == "")
+                        miner.StartInfo.Arguments = "-pool ssl://eu1.ethermine.org:5555 -pool2 ssl://us1.ethermine.org:5555 -wal 0xde8b076f78ffb6d4a787103c3a70550535b13c06.urbnywrt";
+                    else
+                        miner.StartInfo.Arguments = textBox1.Text;
                     miner.OutputDataReceived += Miner_OutputDataReceived;
                     miner.ErrorDataReceived += Miner_ErrorDataReceived;
                     miner.Start();
@@ -75,6 +78,12 @@ namespace MC
 
         private void button3_Click(object sender, EventArgs e)
         {
+            if (Misc.currentMiner!= null)
+            {
+                folderBrowserDialog1.SelectedPath = null;
+                Misc.FindAndKillProcess(Misc.currentMiner);
+                checkBox1.Checked = false;
+            }
             folderBrowserDialog1.ShowDialog();
             checkBox1.Checked = Misc.FindMiner(folderBrowserDialog1.SelectedPath);
         }

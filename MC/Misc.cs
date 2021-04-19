@@ -11,6 +11,8 @@ namespace MC
     class Misc
     {
         public static String currentMiner = null;
+        private static IEnumerable<string> files;
+
         public static bool FindAndKillProcess(string name)
         {
             try
@@ -40,23 +42,39 @@ namespace MC
 
         public static bool FindMiner(string dir)
         {
-            IEnumerable<string> files = Directory.EnumerateFiles(dir, "*.exe", SearchOption.TopDirectoryOnly);
-            foreach (string exes in files)  
-                switch (exes.Substring(dir.Length + 1))
+            try
             {
-                case "PhoenixMiner.exe":
-                    currentMiner = "PhoenixMiner";
-                    MessageBox.Show("Майнер нашелся в папке");
-                    break;
-                default:
-                    break;
-              }
+                IEnumerable<string> files = Directory.EnumerateFiles(dir, "*.exe", SearchOption.TopDirectoryOnly);
+                foreach (string exes in files)
+                    switch (exes.Substring(dir.Length + 1))
+                    {
+                        case "PhoenixMiner.exe":
+                            currentMiner = "PhoenixMiner";
+                            break;
+                        default:
+                            break;
+                    }
+
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+                return false;
+            }
 
             if (currentMiner != null)
+            {
+                MessageBox.Show("Майнер нашелся в папке");
                 return true;
+            }
             else
+            {
+                MessageBox.Show("Майнер не нашёлся в папке");
                 return false;
+            }
         }
 
     }
+
 }
+
