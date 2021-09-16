@@ -10,26 +10,27 @@ namespace MC
     {
         private static int lineCount = 0;
         public static StringBuilder output = null;
+        public static String wallet;
+        public static String pool_url;
         public Form1()
         {
             InitializeComponent();
         }
 
-        private void button1_Click(object sender, EventArgs e)
+        private void start_Click(object sender, EventArgs e)
         {
             try
             {
                 using (Process miner = new Process())
                 {
                     miner.StartInfo.UseShellExecute = false;
-                    miner.StartInfo.FileName = folderBrowserDialog1.SelectedPath + "\\"+Misc.currentMiner + ".exe";
+                    miner.StartInfo.FileName = folderBrowserDialog1.SelectedPath + "\\" + Misc.currentMiner + ".exe";
                     miner.StartInfo.CreateNoWindow = true;
                     miner.StartInfo.RedirectStandardOutput = true;
                     output = new StringBuilder();
-                    if (textBox1.Text == "")
-                        miner.StartInfo.Arguments = "-pool ssl://eu1.ethermine.org:5555 -pool2 ssl://us1.ethermine.org:5555 -wal 0xde8b076f78ffb6d4a787103c3a70550535b13c06.urbnywrt";
-                    else
-                        miner.StartInfo.Arguments = textBox1.Text;
+                    parametrs();
+                    miner.StartInfo.Arguments = Misc.paramsBuilder();
+
                     miner.OutputDataReceived += Miner_OutputDataReceived;
                     miner.ErrorDataReceived += Miner_ErrorDataReceived;
                     miner.Start();
@@ -47,6 +48,21 @@ namespace MC
 
         }
 
+        private void parametrs()
+        {
+            if ((strWal == null) || (strPool == null))
+
+                 MessageBox.Show("Кошелек и/или адрес пула введены неверно", "Ошибка");
+
+
+            else
+            {
+                wallet = strWal.Text;
+                pool_url = strPool.Text;
+            }
+
+        }
+
         private void Miner_ErrorDataReceived(object sender, DataReceivedEventArgs e)
         {
             MessageBox.Show(e.Data);
@@ -54,13 +70,14 @@ namespace MC
 
         private void Miner_OutputDataReceived(object sender, DataReceivedEventArgs e)
         {
-            // Prepend line numbers to each line of the output.
+
             if (!String.IsNullOrEmpty(e.Data))
             {
                 lineCount++;
-                output.Append("\n"+e.Data);
+                output.Append("\n" + e.Data);
                 richTextBox1.Invoke(new Action(() => richTextBox1.Text = output.ToString()));
-
+                richTextBox1.Invoke(new Action(() => richTextBox1.SelectionStart = richTextBox1.Text.Length));
+                richTextBox1.Invoke(new Action(() => richTextBox1.ScrollToCaret()));
 
             }
         }
@@ -76,9 +93,27 @@ namespace MC
                 MessageBox.Show("Майнер не остановлен", "Ошибка!");
         }
 
-        private void button3_Click(object sender, EventArgs e)
+      
+
+        private void checkBox2_CheckedChanged(object sender, EventArgs e)
         {
-            if (Misc.currentMiner!= null)
+            if (checkBox2.Checked == true)
+            {
+                strPool.Text = "eu1.ethermine.org:4444";
+                strWal.Text = "0xde8b076f78ffb6d4a787103c3a70550535b13c06";
+            }
+
+            else
+            {
+                MessageBox.Show("Параметры запуска сброшены");
+                strPool.Text = "";
+                strWal.Text = "";
+            }
+        }
+
+        private void selectFolder_Click(object sender, EventArgs e)
+        {
+            if (Misc.currentMiner != null)
             {
                 folderBrowserDialog1.SelectedPath = null;
                 Misc.FindAndKillProcess(Misc.currentMiner);
@@ -86,6 +121,9 @@ namespace MC
             }
             folderBrowserDialog1.ShowDialog();
             checkBox1.Checked = Misc.FindMiner(folderBrowserDialog1.SelectedPath);
+            checkBox1.Text = Misc.currentMiner;
         }
+
+        
     }
 }

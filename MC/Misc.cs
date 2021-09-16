@@ -42,6 +42,7 @@ namespace MC
 
         public static bool FindMiner(string dir)
         {
+            currentMiner = null;
             try
             {
                 IEnumerable<string> files = Directory.EnumerateFiles(dir, "*.exe", SearchOption.TopDirectoryOnly);
@@ -50,6 +51,10 @@ namespace MC
                     {
                         case "PhoenixMiner.exe":
                             currentMiner = "PhoenixMiner";
+                            
+                            break;
+                        case "nbminer.exe":
+                            currentMiner = "NBMiner";
                             break;
                         default:
                             break;
@@ -65,6 +70,7 @@ namespace MC
             if (currentMiner != null)
             {
                 MessageBox.Show("Майнер нашелся в папке");
+
                 return true;
             }
             else
@@ -74,6 +80,15 @@ namespace MC
             }
         }
 
+        public static String paramsBuilder()
+        {
+            if (currentMiner == "PhoenixMiner")
+                return "-a ethash -pool tcp+stratum://" + Form1.pool_url + " -wal " + Form1.wallet;
+            if (currentMiner == "NBMiner")
+                return "-a ethash -o stratum+tcp://" + Form1.pool_url + " -u " + Form1.wallet;
+            else
+                return null;
+        }
     }
 
 }
